@@ -26,6 +26,9 @@ namespace PM02E10249.Views
         {
             InitializeComponent();
             LongitudLatitud();
+
+            Descripcion_input.Text = "";
+            imgphotoubicacion.Source = null;
         }
 
         public async void LongitudLatitud()
@@ -66,9 +69,9 @@ namespace PM02E10249.Views
         private async Task validarFormulario()
         {
 
-            if (String.IsNullOrWhiteSpace(Longitud_input.Text) || String.IsNullOrWhiteSpace(Latitud_input.Text) || String.IsNullOrWhiteSpace(Descripcion_input.Text))
+            if (String.IsNullOrWhiteSpace(Longitud_input.Text) || String.IsNullOrWhiteSpace(Latitud_input.Text) || String.IsNullOrWhiteSpace(Descripcion_input.Text) || imgphotoubicacion.Source == null)
             {
-                await this.DisplayAlert("Aviso", "Todos los campos son obligatios", "OK");
+                await this.DisplayAlert("Aviso", "Todos los campos son obligatorios", "OK");
             }
 
         }
