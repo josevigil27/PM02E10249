@@ -47,20 +47,30 @@ namespace PM02E10249.Views
             }
             catch (FeatureNotSupportedException fnsEx)
             {
-                await DisplayAlert("PM2E10249", "Este dispositivo no soporta GPS", "Continuar");
+                await DisplayAlert("PM2E10249", "Este dispositivo no soporta GPS", "Ok");
             }
             catch (FeatureNotEnabledException fneEx)
             {
-                await DisplayAlert("PM2E10249", "Error de Dispositivo", "Continuar");
+                await DisplayAlert("PM2E10249", "Error de Dispositivo", "Ok");
             }
             catch (PermissionException pEx)
             {
-                await DisplayAlert("PM2E10249", "Sin Permisos de Geolocalizacion", "Ya me voy pues");
+                await DisplayAlert("PM2E10249", "Sin Permisos de Geolocalizacion", "Ok");
             }
             catch (Exception ex)
             {
-                await DisplayAlert("PM2E10249", "Sin Ubicacion", "Continuar");
+                await DisplayAlert("PM2E10249", "Sin Ubicacion", "Ok");
             }
+        }
+
+        private async Task validarFormulario()
+        {
+
+            if (String.IsNullOrWhiteSpace(Longitud_input.Text) || String.IsNullOrWhiteSpace(Latitud_input.Text) || String.IsNullOrWhiteSpace(Descripcion_input.Text))
+            {
+                await this.DisplayAlert("Aviso", "Todos los campos son obligatios", "OK");
+            }
+
         }
 
         private async void btntomarphoto_Clicked(object sender, EventArgs e)
@@ -97,25 +107,37 @@ namespace PM02E10249.Views
 
         private async void btnaguardar_Clicked(object sender, EventArgs e)
         {
-            var ubicacion = new Ubicaciones
+            if (validarFormulario().IsCompleted)
             {
-                Imagen = imgtoSave,
-                Longitud = (float)Convert.ToDouble(Latitud_input.Text),
-                Latitud = (float)Convert.ToDouble(Latitud_input.Text),
-                Descripcion = Descripcion_input.Text
-            };
+                try
+                {
+                    var ubicacion = new Ubicaciones
+                    {
+                        Imagen = imgtoSave,
+                        Longitud = (float)Convert.ToDouble(Longitud_input.Text),
+                        Latitud = (float)Convert.ToDouble(Latitud_input.Text),
+                        Descripcion = Descripcion_input.Text
+                    };
 
-            var resultado = await App.BaseDatos.GuardarUbicacion(ubicacion);
+                    var resultado = await App.BaseDatos.GuardarUbicacion(ubicacion);
 
-            if (resultado != 0)
-            {
-                await DisplayAlert("Aviso", "Ubicacion Guardada con Exito!!!", "Ok");
-                await Navigation.PushAsync(new ListViewLocationsPage());
+                    if (resultado != 0)
+                    {
+                        await DisplayAlert("Aviso", "Ubicacion Guardada con Exito!!!", "Ok");
+                        await Navigation.PushAsync(new ListViewLocationsPage());
+                        cleanScreen();
+                    }
+                    else
+                    {
+                        await DisplayAlert("Aviso", "Ha Ocurrido un Error", "Ok");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("Error", ex.Message.ToString(), "Ok");
+                }
             }
-            else
-            {
-                await DisplayAlert("Aviso", "Ha Ocurrido un Error", "Ok");
-            }
+            
         }
 
         private async void btnlistviewubicaciones_Clicked(object sender, EventArgs e)
@@ -126,6 +148,13 @@ namespace PM02E10249.Views
         private void btnsalir_Clicked(object sender, EventArgs e)
         {
             System.Diagnostics.Process.GetCurrentProcess().Kill();
+        }
+
+        private async void cleanScreen()
+        {
+            LongitudLatitud();
+            this.Descripcion_input.Text = String.Empty;
+            imgphotoubicacion.Source = null;
         }
     }
 }
